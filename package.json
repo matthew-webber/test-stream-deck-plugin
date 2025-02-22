@@ -1,0 +1,16 @@
+{
+  "name": "test-stream-deck-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "cd demoplugin && npm run watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elgato/cli": "^1.1.1"
+  }
+}
