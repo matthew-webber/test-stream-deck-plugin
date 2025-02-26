@@ -18,6 +18,21 @@
 					"TitleAlignment": "middle"
 				}
 			]
+		},
+		{
+			"UUID": "com.mattwebbertime.demoplugin.vpn-status",
+			"Name": "VPN Status",
+			"Tooltip": "Displays the current VPN connection status",
+			"Icon": "imgs/actions/vpn-status/icon",
+			"States": [
+				{
+					"Image": "imgs/actions/vpn-status/key",
+					"FontSize": "14",
+					"FontColor": "#00f",
+					"BackgroundColor": "#fff",
+					"TitleAlignment": "middle"
+				}
+			]
 		}
 	],
 	"Category": "demoplugin",
