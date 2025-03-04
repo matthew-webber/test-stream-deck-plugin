@@ -24,10 +24,11 @@
 			"Name": "VPN Status",
 			"Tooltip": "Displays the current VPN connection status",
 			"Icon": "imgs/actions/vpn-status/icon",
+			"PropertyInspectorPath": "ui/vpn-status.html",
 			"States": [
 				{
 					"Image": "imgs/actions/vpn-status/key",
-					"FontSize": "14",
+					"FontSize": "12",
 					"FontColor": "#00f",
 					"BackgroundColor": "#fff",
 					"TitleAlignment": "middle"

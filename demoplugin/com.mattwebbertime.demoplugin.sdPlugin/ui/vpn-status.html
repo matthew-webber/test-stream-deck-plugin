@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <title>Nord VPN Status Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+  </head>
+
+  <body>
+    <sdpi-item label="Display Options">
+      <sdpi-checkbox-list setting="displayOptions">
+        <option value="showStateFlag">Show State Flag (US only)</option>
+        <option value="showCountryFlag">Show Country Flag</option>
+      </sdpi-checkbox-list>
+    </sdpi-item>
+    <sdpi-item label="Delegate">
+      <sdpi-delegate setting="delegated_value" invoke="eventName" label="...">
+      </sdpi-delegate>
+    </sdpi-item>
+    <!-- <sdpi-item label="Clear Image Button">
+      <sdpi-button setting="clearImageButton" onClick="clearImage"
+        >Clear Image</sdpi-button
+      >
+    </sdpi-item> -->
+  </body>
+</html>
