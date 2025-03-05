@@ -2,7 +2,8 @@
  * @prettier
  */
 
-import streamDeck, { action, KeyAction, KeyUpEvent, SingletonAction, WillAppearEvent, DidReceiveSettingsEvent, SendToPluginEvent, JsonValue } from "@elgato/streamdeck";
+import * as child from 'child_process';
+import streamDeck, { action, KeyAction, KeyUpEvent, SingletonAction, WillAppearEvent, DidReceiveSettingsEvent, SendToPluginEvent, JsonValue, KeyDownEvent } from "@elgato/streamdeck";
 
 const countryEmojis: Record<string, string> = {
     "us": "🇺🇸",
@@ -34,57 +35,65 @@ const stateFlags: Record<string, string> = {
 @action({ UUID: "com.mattwebbertime.demoplugin.vpn-status" })
 export class NordVpnStatus extends SingletonAction<VpnSettings> {
 
+    override onKeyDown?(ev: KeyDownEvent<VpnSettings>): void {
+        child.exec('echo -e "\a"');
+        streamDeck.logger.info("🟢🟢🟢 onKeyDown", ev);
+    }
+
 
     override onSendToPlugin(ev: SendToPluginEvent<JsonValue, VpnSettings>): void {
         streamDeck.logger.info("🟢🟢🟢 onSendToPlugin", ev);
     }
 
     override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<VpnSettings>): Promise<void> {
-        // streamDeck.logger.info("🟢🟢🟢 onDidReceiveSettings", ev);
-        // streamDeck.logger.info("🧊🧊🧊 displayOptions", ev.payload.settings.displayOptions);
-
-        if (ev.payload.settings.displayOptions?.includes('showStateFlag')) {
-            streamDeck.logger.info("🌝🌝🌝 showStateFlag has changed");
-            await ev.action.setSettings({
-                ...ev.payload.settings,
-                showStateFlagChanged: true,
-            });
-        } else {
-            await ev.action.setSettings({
-                ...ev.payload.settings,
-                showStateFlagChanged: false,
-            });
-            streamDeck.logger.info("🌙🌙🌙 showStateFlag has not changed");
-        }
+        this.refreshVpnStatus(ev);
     }
 
-    override async onWillAppear(ev: WillAppearEvent<VpnSettings>): Promise<void> {
-        // Verify that the action is a key so we can call getVpnStatus
-        // if (!ev.action.isKey()) return;
+    override onWillAppear(ev: WillAppearEvent<VpnSettings>): void {
 
+        streamDeck.logger.warn('⭕⭕⭕ onwillappear');
+        this.refreshVpnStatus(ev);
+    }
+
+    private async refreshVpnStatus(ev: WillAppearEvent<VpnSettings> | DidReceiveSettingsEvent<VpnSettings>): Promise<void> {
         const vpnStatus = await this.getVpnStatus();
 
+        let titleString = '';
+        let countryFlagEmoji = '';
+        let stateFlagImage = '';
+
+        streamDeck.logger.info('ev', ev);
+
         if (vpnStatus.connected) {
+            titleString = 'Connected';
+
             const countryCode = vpnStatus.countryCode?.toLowerCase();
             const stateCode = vpnStatus.stateCode?.toLowerCase();
 
-            const emoji = countryCode ? (countryEmojis[countryCode] || '🤮') : '';
+            const shouldShowStateFlag = ev.payload.settings.displayOptions?.includes('showStateFlag');
+            const shouldShowCountryFlag = ev.payload.settings.displayOptions?.includes('showCountryFlag');
 
-            ev.action.setTitle(`connected\n${emoji}`);
+            streamDeck.logger.info(`\n${generateButtonGrid(ev)}\n is reporting ${`shouldShowStateFlag: ${shouldShowStateFlag}, shouldShowCountryFlag: ${shouldShowCountryFlag}`}`);
 
-            // streamDeck.logger.info("🧠🧠🧠 ev.payload.settings.displayOptions", ev.payload.settings.displayOptions)
-            const shouldShowStateFlag = ev.payload.settings.displayOptions?.includes('showStateFlag')
-            streamDeck.logger.info("🔴 shouldShowStateFlag", shouldShowStateFlag);
+            if (shouldShowCountryFlag) {
+                countryFlagEmoji = countryCode ? countryEmojis[countryCode] : '';
+                titleString = `${countryFlagEmoji} ${titleString}`;
+            }
+
             if (shouldShowStateFlag) {
-                const stateFlagImage = stateCode ? (stateFlags[stateCode] || stateFlags['unknown']) : '';
+                const stateFlagImage = (stateCode && countryCode === 'us') ? (stateFlags[stateCode] || stateFlags['unknown']) : '';
                 ev.action.setImage(stateFlagImage);
-            } else if (ev.payload.settings.showStateFlagChanged) {
-                // ev.action.setImage(null);
+            } else {
+                ev.action.setImage('');
             }
         } else {
-            ev.action.setTitle("D");
+            titleString = 'Disconnected';
+            ev.action.setImage('');
         }
+
+        ev.action.setTitle(titleString);
     }
+
 
     /**
      * Fetches the VPN status of the IP associated with the user's device.
@@ -129,3 +138,16 @@ type VpnSettings = {
     clearImageButton: JsonValue;
     showStateFlagChanged: boolean;
 };
+
+function generateButtonGrid(ev: WillAppearEvent<VpnSettings> | DidReceiveSettingsEvent<VpnSettings>): string {
+    if ('coordinates' in ev.payload) {
+        const { column, row } = ev.payload.coordinates;
+        const grid = Array(2).fill(null).map(() => Array(4).fill('⬛️'));
+
+        grid[row][column] = '⬜️';
+
+        return grid.map(row => row.join('')).join('\n');
+    } else {
+        return '';
+    }
+}

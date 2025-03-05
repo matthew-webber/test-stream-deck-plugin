@@ -12,13 +12,15 @@
 
 # VPN Status Plugin
 
+## Info
+
+- CFBundleIdentifier: com.nordvpn.macos
+
 ## Ideas
 
 - Checkbox - "show state flag when connected to US server?"
 
-
-
-## Other
+## References
 
 - https://api.nordvpn.com/v1/servers?limit=[number]
 - https://web-api.nordvpn.com/v1/ips/info
