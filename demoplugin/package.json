@@ -1,7 +1,8 @@
 {
     "scripts": {
         "build": "rollup -c",
-        "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.mattwebbertime.demoplugin\""
+        "watch": "rollup -c -w --watch.onEnd=\"streamdeck dev && streamdeck restart com.mattwebbertime.demoplugin\"",
+        "dev": "streamdeck dev"
     },
     "type": "module",
     "devDependencies": {
